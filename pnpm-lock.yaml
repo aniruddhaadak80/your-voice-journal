@@ -17,6 +17,9 @@ importers:
       '@clerk/nextjs':
         specifier: ^7.9.4
         version: 7.9.4(next@15.5.25(@types/node@20.19.43)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@neon/config':
+        specifier: ^1.7.2
+        version: 1.7.2
       '@prisma/client':
         specifier: ^5.20.0
         version: 5.22.0(prisma@5.22.0)
@@ -757,6 +760,14 @@ packages:
     peerDependencies:
       '@emnapi/core': ^1.7.1 || ^2.0.0-alpha.4
       '@emnapi/runtime': ^1.7.1 || ^2.0.0-alpha.4
+
+  '@neon/config@1.7.2':
+    resolution: {integrity: sha512-AFLHYl5Qg6p7cGjMxrXpmdniNMO6gOIzv5gAr+5LRMaXeFggTGEWP8Tpe48CKKeE1PUtyE0XoKazDNjQWGvUAw==}
+    engines: {node: '>=20.19.0'}
+
+  '@neon/sdk@6.0.0':
+    resolution: {integrity: sha512-ILfSjXGvCaR1zz9Z8y97Hwe6N4fAHDtab473GpMNbfUzAYMhZXJGuzW3KUEjX5U87OHF/+2RuJLZNI/L7ly5IQ==}
+    engines: {node: '>=20.19.0'}
 
   '@next/env@15.5.25':
     resolution: {integrity: sha512-42h1lLr07vl4gawALP1hsgRZjHB1xYa58JfUfHwr0f7jG/zhPakh5GHkADHXOC9ZxUvlQFOPIrp7s6qX4DezPQ==}
@@ -2996,6 +3007,9 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
+  zod@4.6.5:
+    resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
+
 snapshots:
 
   '@alloc/quick-lru@5.3.0': {}
@@ -3576,6 +3590,14 @@ snapshots:
       '@emnapi/runtime': 1.10.0
       '@tybys/wasm-util': 0.10.4
     optional: true
+
+  '@neon/config@1.7.2':
+    dependencies:
+      '@neon/sdk': 6.0.0
+      jiti: 2.7.0
+      zod: 4.6.5
+
+  '@neon/sdk@6.0.0': {}
 
   '@next/env@15.5.25': {}
 
@@ -6106,3 +6128,5 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   zod@3.25.76: {}
+
+  zod@4.6.5: {}
