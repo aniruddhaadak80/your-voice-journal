@@ -18,6 +18,8 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      // Vendored ThreeUI authored assets (byte-exact, do not lint)
+      "public/landing-pages/**",
     ],
   },
 ];
