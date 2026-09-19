@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import { isAllowedMime, classifyMime, storageConfigured, uploadBufferToStorage, MAX_UPLOAD_BYTES } from "@/lib/s3";
-import { createAttachment, defaultUserId, getEntryById } from "@/lib/db";
+import { createAttachment, getEntryById, dbConfigured } from "@/lib/db";
+import { getUserId } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
+  if (!dbConfigured()) {
+    return NextResponse.json({ error: "Database not connected — finish /connect first" }, { status: 400 });
+  }
   if (!storageConfigured()) {
     return NextResponse.json({ error: "S3/R2 not configured" }, { status: 400 });
   }
@@ -19,7 +23,7 @@ export async function POST(req: Request) {
   if (!isAllowedMime(file.type)) {
     return NextResponse.json({ error: `Unsupported type: ${file.type}` }, { status: 400 });
   }
-  const userId = defaultUserId();
+  const userId = await getUserId();
   if (entryId) {
     const entry = await getEntryById({ id: entryId, userId });
     if (!entry) return NextResponse.json({ error: "Entry not found" }, { status: 404 });

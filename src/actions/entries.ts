@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createEntry, updateEntry, deleteEntry, defaultUserId } from "@/lib/db";
+import { createEntry, updateEntry, deleteEntry, dbConfigured } from "@/lib/db";
+import { getUserId } from "@/lib/auth";
 import { stripHtml } from "@/lib/format";
 
 function parseTags(raw?: string | string[]) {
@@ -18,7 +19,8 @@ export async function createEntryAction(form: {
   transcript?: string;
   audioUrl?: string;
 }) {
-  const userId = defaultUserId();
+  if (!dbConfigured()) throw new Error("Database not connected — finish /connect first.");
+  const userId = await getUserId();
   const entry = await createEntry({
     userId,
     title: form.title,
@@ -42,7 +44,8 @@ export async function updateEntryAction(form: {
   transcript?: string;
   audioUrl?: string;
 }) {
-  const userId = defaultUserId();
+  if (!dbConfigured()) throw new Error("Database not connected — finish /connect first.");
+  const userId = await getUserId();
   await updateEntry({
     id: form.id,
     userId,
@@ -61,7 +64,8 @@ export async function updateEntryAction(form: {
 }
 
 export async function deleteEntryAction(id: string) {
-  await deleteEntry({ id, userId: defaultUserId() });
+  if (!dbConfigured()) throw new Error("Database not connected — finish /connect first.");
+  await deleteEntry({ id, userId: await getUserId() });
   revalidatePath("/");
   return { ok: true };
 }

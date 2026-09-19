@@ -1,9 +1,11 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { getEntries, defaultUserId, fulltextSearchEntries } from "@/lib/db";
+import { tryGetEntries, trySearchEntries } from "@/lib/db";
+import { getUserId } from "@/lib/auth";
 import { EntryCard, SearchBar } from "@/components/EntryList";
 import { Button } from "@/components/ui";
 import AskJournal from "@/components/AskJournal";
+import ConnectBanner from "@/components/ConnectBanner";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +17,7 @@ export default async function Home({
   const sp = await searchParams;
   const q = sp.q?.trim() ?? "";
   const tag = sp.tag?.trim();
-  const userId = defaultUserId();
+  const userId = await getUserId();
 
   return (
     <div className="space-y-6">
@@ -42,10 +44,15 @@ export default async function Home({
 }
 
 async function EntryList({ q, tag, userId, cursor }: { q: string; tag?: string; userId: string; cursor?: string }) {
-  const raw = q
-    ? await fulltextSearchEntries({ userId, query: q, limit: 21 })
-    : await getEntries({ userId, limit: 20, cursor, search: undefined, tag });
+  const result = q
+    ? await trySearchEntries({ userId, query: q, limit: 21 })
+    : await tryGetEntries({ userId, limit: 20, cursor, search: undefined, tag });
 
+  if (!result.dbOk) {
+    return <ConnectBanner error={result.error} />;
+  }
+
+  const raw = result.entries;
   const hasMore = raw.length > 20;
   const entries = hasMore ? raw.slice(0, 20) : raw;
   const nextCursor = hasMore ? entries[entries.length - 1]?.id : undefined;

@@ -141,10 +141,15 @@ export async function deleteEntry({ id, userId }: { id: string; userId: string }
 async function ensureDemoUserIfNeeded(userId: string) {
   const existing = await prisma.user.findUnique({ where: { id: userId } });
   if (!existing) {
+    // Clerk users get a synthetic stable email; demo mode uses your email.
+    const email =
+      userId === defaultUserId()
+        ? (process.env.DEFAULT_USER_EMAIL ?? "you@example.com")
+        : `${userId}@clerk.users`;
     await prisma.user.create({
       data: {
         id: userId,
-        email: process.env.DEFAULT_USER_EMAIL ?? "you@example.com",
+        email,
         name: "Journal Owner",
       },
     });
@@ -172,4 +177,55 @@ export async function getAttachmentsByEntryId(entryId: string) {
 export function snippetOf(text: string, max = 180) {
   const clean = text.replace(/\s+/g, " ").trim();
   return clean.length > max ? clean.slice(0, max - 1) + "…" : clean;
+}
+
+// --- Fail-safe wrappers -----------------------------------------------
+// Never throw: pages stay up with a friendly "connect your DB" state
+// when DATABASE_URL is missing or the DB is unreachable/unmigrated.
+
+export function dbConfigured() {
+  return Boolean(process.env.DATABASE_URL);
+}
+
+export async function getDbStatus(): Promise<{ ok: boolean; error?: string }> {
+  if (!dbConfigured()) return { ok: false, error: "DATABASE_URL is not set" };
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message.split("\n")[0] };
+  }
+}
+
+export async function tryGetEntries(filter: EntryFilter) {
+  const status = await getDbStatus();
+  if (!status.ok) return { entries: [] as Awaited<ReturnType<typeof getEntries>>, dbOk: false as const, error: status.error };
+  try {
+    const entries = await getEntries(filter);
+    return { entries, dbOk: true as const, error: undefined as string | undefined };
+  } catch (e) {
+    return { entries: [] as Awaited<ReturnType<typeof getEntries>>, dbOk: false as const, error: (e as Error).message.split("\n")[0] };
+  }
+}
+
+export async function trySearchEntries(params: { userId: string; query: string; limit?: number }) {
+  const status = await getDbStatus();
+  if (!status.ok) return { entries: [] as Awaited<ReturnType<typeof fulltextSearchEntries>>, dbOk: false as const, error: status.error };
+  try {
+    const entries = await fulltextSearchEntries(params);
+    return { entries, dbOk: true as const, error: undefined as string | undefined };
+  } catch (e) {
+    return { entries: [] as Awaited<ReturnType<typeof fulltextSearchEntries>>, dbOk: false as const, error: (e as Error).message.split("\n")[0] };
+  }
+}
+
+export async function tryGetEntryById(params: { id: string; userId: string }) {
+  const status = await getDbStatus();
+  if (!status.ok) return { entry: null, dbOk: false as const, error: status.error };
+  try {
+    const entry = await getEntryById(params);
+    return { entry, dbOk: true as const, error: undefined as string | undefined };
+  } catch (e) {
+    return { entry: null, dbOk: false as const, error: (e as Error).message.split("\n")[0] };
+  }
 }

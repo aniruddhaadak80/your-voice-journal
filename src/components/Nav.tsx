@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpenText, Plus, Search, Settings } from "lucide-react";
+import { BookOpenText, Plus, Search, Settings, PlugZap } from "lucide-react";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/format";
 import ThemeToggle from "./ThemeToggle";
+
+const clerkOn = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
 export default function Nav() {
   const path = usePathname();
@@ -32,7 +35,22 @@ export default function Nav() {
         <nav className="flex items-center gap-1">
           {link("/", "Journal", <Search className="h-4 w-4" />)}
           {link("/entry/new", "New", <Plus className="h-4 w-4" />)}
+          {link("/connect", "Connect", <PlugZap className="h-4 w-4" />)}
           {link("/settings", "Settings", <Settings className="h-4 w-4" />)}
+          {clerkOn && (
+            <>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="rounded-xl bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500">
+                    Sign in
+                  </button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+            </>
+          )}
           <ThemeToggle />
         </nav>
       </div>

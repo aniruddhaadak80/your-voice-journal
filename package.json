@@ -17,6 +17,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.600.0",
     "@aws-sdk/s3-request-presigner": "^3.600.0",
+    "@clerk/nextjs": "^7.9.4",
     "@prisma/client": "^5.20.0",
     "@tiptap/extension-image": "^2.6.0",
     "@tiptap/extension-link": "^2.6.0",
@@ -35,11 +36,11 @@
     "zod": "^3.23.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@eslint/eslintrc": "^3",
     "eslint": "^9",
     "eslint-config-next": "15.5.25",
     "prettier": "^3.3.0",

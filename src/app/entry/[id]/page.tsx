@@ -1,16 +1,38 @@
-import { notFound } from "next/navigation";
-import { getEntryById, defaultUserId } from "@/lib/db";
+import Link from "next/link";
+import { tryGetEntryById } from "@/lib/db";
+import { getUserId } from "@/lib/auth";
 import { formatDateTime } from "@/lib/format";
 import { Badge, Card } from "@/components/ui";
 import AttachmentGallery from "@/components/AttachmentGallery";
 import EditEntryForm from "@/components/EditEntryForm";
+import ConnectBanner from "@/components/ConnectBanner";
 
 export const dynamic = "force-dynamic";
 
 export default async function EntryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const entry = await getEntryById({ id, userId: defaultUserId() });
-  if (!entry) notFound();
+  const { entry, dbOk, error } = await tryGetEntryById({ id, userId: await getUserId() });
+
+  if (!dbOk) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold">Entry unavailable</h1>
+        <ConnectBanner error={error} />
+      </div>
+    );
+  }
+
+  if (!entry) {
+    return (
+      <Card>
+        <h1 className="text-xl font-bold">Entry not found</h1>
+        <p className="mt-1 text-sm text-zinc-500">
+          It may have been deleted or belong to another account.{" "}
+          <Link href="/" className="text-indigo-600 hover:underline">Back to journal →</Link>
+        </p>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">

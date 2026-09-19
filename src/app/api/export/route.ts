@@ -1,18 +1,27 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { defaultUserId } from "@/lib/db";
+import { dbConfigured } from "@/lib/db";
+import { getUserId } from "@/lib/auth";
 import { stripHtml } from "@/lib/format";
 
 export const runtime = "nodejs";
 
 export async function GET(req: Request) {
+  if (!dbConfigured()) {
+    return NextResponse.json({ error: "Database not connected — finish /connect first" }, { status: 400 });
+  }
   const { searchParams } = new URL(req.url);
   const format = searchParams.get("format") ?? "json";
-  const entries = await prisma.journalEntry.findMany({
-    where: { userId: defaultUserId(), isDeleted: false },
-    include: { attachments: true },
-    orderBy: { createdAt: "desc" },
-  });
+  let entries;
+  try {
+    entries = await prisma.journalEntry.findMany({
+      where: { userId: await getUserId(), isDeleted: false },
+      include: { attachments: true },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (e) {
+    return NextResponse.json({ error: (e as Error).message.split("\n")[0] }, { status: 500 });
+  }
   if (format === "markdown") {
     const md = entries
       .map(
