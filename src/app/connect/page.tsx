@@ -61,7 +61,7 @@ export default function ConnectPage() {
         </Step>
         <Step n="Step 3" title="Gemini AI (voice + summaries)" href="https://aistudio.google.com/apikey" linkLabel="aistudio.google.com/apikey">
           <li>Sign in → <strong>Create API key</strong> (free tier).</li>
-          <li>Test below with model <code>gemini-2.0-flash</code>.</li>
+          <li>Test below with model <code>gemini-3.5-flash</code>.</li>
           <li>Save as <code>GEMINI_API_KEY</code> (+ optional <code>GEMINI_MODEL</code>).</li>
         </Step>
         <Step n="Step 4" title="Clerk auth (per-user journals)" href="https://dashboard.clerk.com" linkLabel="dashboard.clerk.com">

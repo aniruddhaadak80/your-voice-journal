@@ -10,7 +10,7 @@ export function aiConfigured() {
 }
 
 export function geminiModel() {
-  return process.env.GEMINI_MODEL || "gemini-2.0-flash";
+  return process.env.GEMINI_MODEL || "gemini-3.5-flash";
 }
 
 type GeminiPart = { text: string } | { inlineData: { mimeType: string; data: string } };

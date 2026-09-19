@@ -17,7 +17,7 @@ const FIELDS: Record<Kind, Array<{ key: string; label: string; placeholder: stri
   ],
   gemini: [
     { key: "key", label: "Gemini API key", placeholder: "AIza…", secret: true },
-    { key: "model", label: "Model", placeholder: "gemini-2.0-flash" },
+    { key: "model", label: "Model", placeholder: "gemini-3.5-flash" },
   ],
   clerk: [
     { key: "publishable", label: "Publishable key (pk_…)", placeholder: "pk_test_…" },
@@ -102,7 +102,7 @@ function TesterCard({ kind }: { kind: Kind }) {
 }
 
 export function EnvGenerator() {
-  const [v, setV] = useState<Record<string, string>>({ region: "auto", bucket: "journal-media", model: "gemini-2.0-flash" });
+  const [v, setV] = useState<Record<string, string>>({ region: "auto", bucket: "journal-media", model: "gemini-3.5-flash" });
   const [copied, setCopied] = useState(false);
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setV((prev) => ({ ...prev, [k]: e.target.value }));
@@ -118,7 +118,7 @@ S3_ACCESS_KEY_ID="${v.keyId ?? ""}"
 S3_SECRET_ACCESS_KEY="${v.s3secret ?? ""}"
 S3_PUBLIC_BASE_URL="${v.publicUrl ?? ""}"
 GEMINI_API_KEY="${v.gemini ?? ""}"
-GEMINI_MODEL="${v.model ?? "gemini-2.0-flash"}"
+GEMINI_MODEL="${v.model ?? "gemini-3.5-flash"}"
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="${v.clerkPub ?? ""}"
 CLERK_SECRET_KEY="${v.clerkSecret ?? ""}"
 NEXT_PUBLIC_APP_NAME="Your Voice Journal"`;

@@ -68,7 +68,7 @@ async function testS3(v: Record<string, string>) {
 
 async function testGemini(v: Record<string, string>) {
   const key = v.key?.trim();
-  const model = v.model?.trim() || "gemini-2.0-flash";
+  const model = v.model?.trim() || "gemini-3.5-flash";
   if (!key) return { ok: false, error: "Paste an API key first." };
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
