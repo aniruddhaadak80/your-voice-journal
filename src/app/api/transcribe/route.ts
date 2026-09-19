@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   if (!aiConfigured()) {
-    return NextResponse.json({ error: "OPENAI_API_KEY not configured" }, { status: 400 });
+    return NextResponse.json({ error: "GEMINI_API_KEY not configured" }, { status: 400 });
   }
   const form = await req.formData();
   const file = form.get("audio") as File | null;

@@ -1,9 +1,9 @@
-# Neon Voice Journal 🎙️📝
+# Your Voice Journal 🎙️📝
 
-AI-powered, multimedia journaling on **your own Neon Postgres + S3/R2**. Next.js 15 App Router, voice transcription, rich text, attachments, full-text search, Ask-my-journal.
+AI-powered, multimedia journaling on **your own Neon Postgres + S3/R2**. Next.js 15 App Router, Gemini voice transcription, rich text, attachments, full-text search, Ask-my-journal.
 
 ## Features
-- **Voice journaling**: browser recorder → `/api/transcribe` (Whisper BYOK) → transcript + audio URL saved in Postgres
+- **Voice journaling**: browser recorder → `/api/transcribe` (Gemini BYOK) → transcript + audio URL saved in Postgres
 - **Multimedia**: images, video, audio, PDFs, docs via S3-compatible upload (`/api/upload`), gallery rendering
 - **Rich text**: TipTap editor (headings, lists, code, links, images)
 - **Search**: portable ILIKE search now, optional `tsvector` migration (`prisma/fulltext.sql`)
@@ -16,7 +16,7 @@ Next.js 15 · TypeScript · Tailwind · Prisma · Neon Postgres · S3/R2 (`@aws-
 
 ## Setup
 1. `npm install --legacy-peer-deps`
-2. Copy `.env.example` → `.env`, set `DATABASE_URL` (Neon), `S3_*`, `OPENAI_API_KEY` (optional)
+2. Copy `.env.example` → `.env`, set `DATABASE_URL` (Neon), `S3_*`, `GEMINI_API_KEY` (optional, free at https://aistudio.google.com/apikey)
 3. `npx prisma migrate dev` (creates tables) — optional: `psql $DATABASE_URL -f prisma/fulltext.sql`
 4. `npm run db:seed`
 5. `npm run dev` → http://localhost:3000
@@ -30,7 +30,7 @@ Without env vars the app still runs (empty state); `/settings` shows DB/storage/
 
 ## Deploy (Vercel)
 1. Push repo to GitHub, Import in Vercel
-2. Env vars: `DATABASE_URL`, `S3_*`, `OPENAI_API_KEY`, `NEXT_PUBLIC_APP_NAME`, `DEFAULT_USER_ID`
+2. Env vars: `DATABASE_URL`, `S3_*`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `NEXT_PUBLIC_APP_NAME`, `DEFAULT_USER_ID`
 3. Build: `npx prisma generate && next build` (default `npm run build` + postinstall handles generate — add `"postinstall": "prisma generate"` if needed)
 4. After first deploy: `npx prisma migrate deploy` against prod Neon DB
 

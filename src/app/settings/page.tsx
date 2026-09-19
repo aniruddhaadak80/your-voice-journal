@@ -27,8 +27,8 @@ export default async function SettingsPage() {
         </Card>
         <Card>
           <h3 className="font-semibold">AI / Voice</h3>
-          <p className="mt-1 text-sm">{aiConfigured() ? "🟢 Enabled (BYOK)" : "🟡 Disabled — set OPENAI_API_KEY"}</p>
-          <p className="mt-1 text-xs text-zinc-500">Whisper transcription, summaries, tags, Ask-my-journal.</p>
+          <p className="mt-1 text-sm">{aiConfigured() ? "🟢 Enabled (Gemini BYOK)" : "🟡 Disabled — set GEMINI_API_KEY"}</p>
+          <p className="mt-1 text-xs text-zinc-500">Gemini transcription, summaries, tags, Ask-my-journal.</p>
         </Card>
         <Card>
           <h3 className="font-semibold">Export</h3>

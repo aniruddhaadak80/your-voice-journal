@@ -12,7 +12,7 @@ export async function GET() {
   return NextResponse.json({
     db: dbOk ? "connected" : "not configured",
     storage: process.env.S3_BUCKET ? "configured" : "not configured",
-    ai: process.env.OPENAI_API_KEY ? "configured" : "not configured",
+    ai: process.env.GEMINI_API_KEY ? "configured (gemini)" : "not configured",
     userId: defaultUserId(),
   });
 }
