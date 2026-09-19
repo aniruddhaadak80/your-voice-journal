@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --radius: 1rem;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.prose img {
+  border-radius: 1rem;
+}

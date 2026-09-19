@@ -1,0 +1,65 @@
+// Prisma schema for Neon Voice Journal (Postgres).
+// Bring-your-own Neon DB: set DATABASE_URL, then `npx prisma migrate dev`.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String        @id @default(cuid())
+  email     String        @unique
+  name      String?
+  createdAt DateTime      @default(now())
+  entries   JournalEntry[]
+}
+
+model JournalEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String   @default("Untitled")
+  // Rich text stored as HTML (TipTap output). Plain-text mirror for search.
+  content   String   @default("")
+  plainText String   @default("")
+  transcript String  @default("")
+  mood      String?
+  tags      String[] @default([])
+  audioUrl  String?
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  attachments Attachment[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, updatedAt(sort: Desc)])
+  @@index([userId, isDeleted, createdAt(sort: Desc)])
+}
+
+model Attachment {
+  id        String       @id @default(cuid())
+  entryId   String
+  entry     JournalEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  url       String
+  type      AttachmentType @default(other)
+  fileName  String
+  mimeType  String?
+  sizeBytes Int?
+  createdAt DateTime     @default(now())
+
+  @@index([entryId, createdAt(sort: Desc)])
+}
+
+enum AttachmentType {
+  image
+  video
+  audio
+  pdf
+  document
+  other
+}
