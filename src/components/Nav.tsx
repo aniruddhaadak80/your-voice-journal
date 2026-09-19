@@ -8,7 +8,7 @@ import ThemeToggle from "./ThemeToggle";
 
 export default function Nav() {
   const path = usePathname();
-  const appName = process.env.NEXT_PUBLIC_APP_NAME || "Neon Voice Journal";
+  const appName = process.env.NEXT_PUBLIC_APP_NAME || "Your Voice Journal";
   const link = (href: string, label: string, icon: React.ReactNode) => (
     <Link
       key={href}

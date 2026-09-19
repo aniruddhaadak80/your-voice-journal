@@ -6,7 +6,7 @@ import Nav from "@/components/Nav";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: process.env.NEXT_PUBLIC_APP_NAME || "Neon Voice Journal",
+  title: process.env.NEXT_PUBLIC_APP_NAME || "Your Voice Journal",
   description: "AI voice + multimedia journal backed by your own Neon Postgres + S3/R2.",
 };
 
