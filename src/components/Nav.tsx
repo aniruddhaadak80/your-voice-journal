@@ -39,21 +39,17 @@ export default function Nav() {
           {link("/settings", "Settings", <Settings className="h-4 w-4" />)}
           {clerkOn && (
             <>
-              <Show when="signed-out">
-                <SignInButton mode="modal">
-                  <button className="rounded-xl bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500">
-                    Sign in
-                  </button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <button className="rounded-xl px-3 py-2 text-sm font-semibold text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800">
-                    Sign up
-                  </button>
-                </SignUpButton>
-              </Show>
-              <Show when="signed-in">
-                <UserButton />
-              </Show>
+              <SignInButton mode="modal">
+                <button className="rounded-xl bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500">
+                  Sign in
+                </button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button className="rounded-xl px-3 py-2 text-sm font-semibold text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800">
+                  Sign up
+                </button>
+              </SignUpButton>
+              <UserButton />
             </>
           )}
           <ThemeToggle />
