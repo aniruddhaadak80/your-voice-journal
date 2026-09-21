@@ -26,7 +26,7 @@ export default function Editor({
     editorProps: {
       attributes: {
         class:
-          "prose dark:prose-invert min-h-[280px] max-w-none rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-4 outline-none focus:ring-2 focus:ring-indigo-200",
+          "prose dark:prose-invert min-h-[280px] max-w-none rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-4 outline-none focus:ring-2 focus:ring-blue-200",
       },
     },
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
@@ -60,7 +60,7 @@ export default function Editor({
             key={label}
             type="button"
             onClick={fn}
-            className={`rounded-lg px-2.5 py-1.5 font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-800 ${active ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900" : "text-zinc-600 dark:text-zinc-300"}`}
+            className={`rounded-lg px-2.5 py-1.5 font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-800 ${active ? "bg-blue-100 text-blue-700 dark:bg-blue-900" : "text-zinc-600 dark:text-zinc-300"}`}
           >
             {label}
           </button>

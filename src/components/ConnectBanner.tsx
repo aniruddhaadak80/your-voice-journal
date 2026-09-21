@@ -3,8 +3,8 @@ import { PlugZap } from "lucide-react";
 
 export default function ConnectBanner({ error }: { error?: string }) {
   return (
-    <div className="rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-violet-50 p-6 dark:border-indigo-900 dark:from-indigo-950/50 dark:to-violet-950/30">
-      <div className="flex items-center gap-2 font-semibold text-indigo-800 dark:text-indigo-200">
+    <div className="rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-50 p-6 dark:border-blue-900 dark:from-blue-950/50 dark:to-blue-950/30">
+      <div className="flex items-center gap-2 font-semibold text-blue-800 dark:text-blue-200">
         <PlugZap className="h-5 w-5" />
         Connect your own database to start journaling
       </div>
@@ -23,7 +23,7 @@ export default function ConnectBanner({ error }: { error?: string }) {
       </ol>
       <Link
         href="/connect"
-        className="mt-4 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow transition hover:bg-indigo-500 active:scale-[0.98]"
+        className="mt-4 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow transition hover:bg-blue-500 active:scale-[0.98]"
       >
         <PlugZap className="h-4 w-4" /> Open the Connect wizard →
       </Link>

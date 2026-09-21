@@ -29,11 +29,11 @@ export default function Nav() {
     <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/80 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/80">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 py-3">
         <Link href="/" className="flex items-center gap-2 font-bold">
-          <BookOpenText className="h-5 w-5 text-indigo-600" />
+          <BookOpenText className="h-5 w-5 text-blue-600" />
           {appName}
         </Link>
         <nav className="flex items-center gap-1">
-          {link("/", "Journal", <Search className="h-4 w-4" />)}
+          {link("/journal", "Journal", <Search className="h-4 w-4" />)}
           {link("/entry/new", "New", <Plus className="h-4 w-4" />)}
           {link("/connect", "Connect", <PlugZap className="h-4 w-4" />)}
           {link("/showcase", "Showcase", <Sparkles className="h-4 w-4" />)}
@@ -41,7 +41,7 @@ export default function Nav() {
           {clerkOn && (
             <>
               <SignInButton mode="modal">
-                <button className="rounded-xl bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500">
+                <button className="rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500">
                   Sign in
                 </button>
               </SignInButton>

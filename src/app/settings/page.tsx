@@ -27,7 +27,7 @@ export default async function SettingsPage() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-bold">Settings & status</h1>
-        <Link href="/connect" className="text-sm font-semibold text-indigo-600 hover:underline">
+        <Link href="/connect" className="text-sm font-semibold text-blue-600 hover:underline">
           Open Connect wizard →
         </Link>
       </div>
@@ -37,7 +37,7 @@ export default async function SettingsPage() {
           <p className="mt-1 text-sm">
             {db.ok && migrated ? "🟢 Connected" : db.ok ? "🟡 Reachable but tables missing — run migrations" : "🔴 Not connected"}
           </p>
-          {!db.ok && <p className="mt-1 text-xs text-zinc-500">{db.error} — see <Link href="/connect" className="text-indigo-600 hover:underline">/connect</Link></p>}
+          {!db.ok && <p className="mt-1 text-xs text-zinc-500">{db.error} — see <Link href="/connect" className="text-blue-600 hover:underline">/connect</Link></p>}
           {db.ok && !migrated && (
             <p className="mt-1 text-xs text-zinc-500">Run <code>prisma migrate deploy</code> against your DATABASE_URL.</p>
           )}
@@ -57,7 +57,7 @@ export default async function SettingsPage() {
           <h3 className="font-semibold">Auth (Clerk)</h3>
           <p className="mt-1 text-sm">{clerkConfigured() ? "🟢 Enabled — each user has private data" : "🟡 Demo mode — single shared user"}</p>
           <p className="mt-1 text-xs text-zinc-500">
-            {clerkConfigured() ? `Signed-in user data is isolated by Clerk id.` : <>Add Clerk keys to give every visitor their own journal. See <Link href="/connect" className="text-indigo-600 hover:underline">/connect</Link>.</>}
+            {clerkConfigured() ? `Signed-in user data is isolated by Clerk id.` : <>Add Clerk keys to give every visitor their own journal. See <Link href="/connect" className="text-blue-600 hover:underline">/connect</Link>.</>}
           </p>
         </Card>
         <Card>

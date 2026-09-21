@@ -1,12 +1,18 @@
 import { NextResponse } from "next/server";
 import { transcribeWithWhisper, aiConfigured } from "@/lib/ai";
 import { storageConfigured, uploadBufferToStorage } from "@/lib/s3";
+import { requireUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   if (!aiConfigured()) {
     return NextResponse.json({ error: "GEMINI_API_KEY not configured" }, { status: 400 });
+  }
+  try {
+    await requireUserId();
+  } catch (e) {
+    return NextResponse.json({ error: (e as Error).message }, { status: 401 });
   }
   const form = await req.formData();
   const file = form.get("audio") as File | null;

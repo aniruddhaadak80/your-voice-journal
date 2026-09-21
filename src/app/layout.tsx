@@ -7,9 +7,28 @@ import { clerkConfigured } from "@/lib/auth";
 
 const inter = Inter({ subsets: ["latin"] });
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://your-voice-journal.vercel.app";
+const SITE_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Your Voice Journal";
+const SITE_DESC =
+  "AI voice + multimedia journal backed by your own Neon Postgres + S3/R2.";
+
 export const metadata: Metadata = {
-  title: process.env.NEXT_PUBLIC_APP_NAME || "Your Voice Journal",
-  description: "AI voice + multimedia journal backed by your own Neon Postgres + S3/R2.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_NAME,
+  description: SITE_DESC,
+  openGraph: {
+    title: SITE_NAME,
+    description: SITE_DESC,
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: SITE_NAME,
+    description: SITE_DESC,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -18,7 +37,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <Nav />
       <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
       <footer className="mx-auto max-w-5xl px-4 pb-10 text-xs text-zinc-500">
-        Your data lives in your Neon Postgres + object storage. No vendor lock-in.
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <span>Your data lives in your Neon Postgres + object storage. No vendor lock-in.</span>
+          <span className="ml-auto flex gap-3">
+            <a href="/showcase" className="hover:underline">Showcase</a>
+            <a href="/connect" className="hover:underline">Connect</a>
+            <a href="/api/status" className="hover:underline">Status</a>
+            <a href="https://github.com/aniruddhaadak80/your-voice-journal" target="_blank" className="hover:underline">GitHub</a>
+          </span>
+        </div>
       </footer>
     </>
   );

@@ -20,8 +20,34 @@ export type EntryFilter = {
   cursor?: string;
   search?: string;
   tag?: string;
+  mood?: string;
+  from?: string; // YYYY-MM-DD
+  to?: string; // YYYY-MM-DD
+  sort?: "newest" | "oldest";
   includeDeleted?: boolean;
 };
+
+export type EntrySort = "newest" | "oldest";
+
+function dateRangeWhere(from?: string, to?: string) {
+  const createdAt: { gte?: Date; lte?: Date } = {};
+  if (from) {
+    const d = new Date(`${from}T00:00:00`);
+    if (!isNaN(+d)) createdAt.gte = d;
+  }
+  if (to) {
+    const d = new Date(`${to}T00:00:00`);
+    if (!isNaN(+d)) {
+      d.setHours(23, 59, 59, 999);
+      createdAt.lte = d;
+    }
+  }
+  return Object.keys(createdAt).length > 0 ? { createdAt } : {};
+}
+
+function sortOrder(sort?: EntrySort): { createdAt: "asc" | "desc" } {
+  return { createdAt: sort === "oldest" ? "asc" : "desc" };
+}
 
 function searchWhere(search?: string) {
   if (!search?.trim()) return {};
@@ -40,8 +66,12 @@ export async function fulltextSearchEntries(params: {
   userId: string;
   query: string;
   limit?: number;
+  mood?: string;
+  from?: string;
+  to?: string;
+  sort?: EntrySort;
 }) {
-  const { userId, query, limit = 20 } = params;
+  const { userId, query, limit = 20, mood, from, to, sort } = params;
   const q = query.trim();
   if (!q) return [];
   // Portable ILIKE search. For large DBs add a tsvector migration
@@ -50,24 +80,28 @@ export async function fulltextSearchEntries(params: {
     where: {
       userId,
       isDeleted: false,
+      ...(mood?.trim() ? { mood: mood.trim() } : {}),
+      ...dateRangeWhere(from, to),
       ...searchWhere(q),
     },
     include: { attachments: true },
-    orderBy: { createdAt: "desc" },
+    orderBy: sortOrder(sort),
     take: limit,
   });
 }
 
-export async function getEntries({ userId, limit = 20, cursor, search, tag }: EntryFilter) {
+export async function getEntries({ userId, limit = 20, cursor, search, tag, mood, from, to, sort }: EntryFilter) {
   return prisma.journalEntry.findMany({
     where: {
       userId,
       isDeleted: false,
       ...(tag ? { tags: { has: tag } } : {}),
+      ...(mood?.trim() ? { mood: mood.trim() } : {}),
+      ...dateRangeWhere(from, to),
       ...searchWhere(search),
     },
     include: { attachments: true },
-    orderBy: { createdAt: "desc" },
+    orderBy: sortOrder(sort),
     take: limit + 1,
     ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
   });
@@ -208,7 +242,15 @@ export async function tryGetEntries(filter: EntryFilter) {
   }
 }
 
-export async function trySearchEntries(params: { userId: string; query: string; limit?: number }) {
+export async function trySearchEntries(params: {
+  userId: string;
+  query: string;
+  limit?: number;
+  mood?: string;
+  from?: string;
+  to?: string;
+  sort?: EntrySort;
+}) {
   const status = await getDbStatus();
   if (!status.ok) return { entries: [] as Awaited<ReturnType<typeof fulltextSearchEntries>>, dbOk: false as const, error: status.error };
   try {

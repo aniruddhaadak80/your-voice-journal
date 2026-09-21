@@ -2,8 +2,21 @@
 
 import { useState } from "react";
 import { Button } from "./ui";
+import RequireSignIn, { clerkOn, useSignInGate, GateLoading } from "@/components/RequireSignIn";
 
 export default function ExportButtons() {
+  if (!clerkOn) return <ExportBox />;
+  return <GatedExport />;
+}
+
+function GatedExport() {
+  const { isSignedIn, isLoaded } = useSignInGate();
+  if (!isLoaded) return <GateLoading />;
+  if (!isSignedIn) return <RequireSignIn action="export your journal" />;
+  return <ExportBox />;
+}
+
+function ExportBox() {
   const [busy, setBusy] = useState("");
   async function download(kind: "json" | "markdown") {
     setBusy(kind);

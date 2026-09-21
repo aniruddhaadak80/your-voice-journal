@@ -10,7 +10,7 @@ export default function SignInPage() {
         <h1 className="text-xl font-bold">Auth not configured</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Add Clerk keys to enable sign-in.{" "}
-          <Link href="/connect" className="text-indigo-600 hover:underline">Follow the Connect wizard →</Link>
+          <Link href="/connect" className="text-blue-600 hover:underline">Follow the Connect wizard →</Link>
         </p>
       </Card>
     );

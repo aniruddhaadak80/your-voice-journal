@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Loader2, CheckCircle2, XCircle, Copy } from "lucide-react";
 import { Card, inputCls } from "./ui";
+import RequireSignIn, { clerkOn, useSignInGate, GateLoading } from "@/components/RequireSignIn";
 
 type Kind = "neon" | "s3" | "gemini" | "clerk";
 
@@ -43,6 +44,19 @@ export default function ConnectTester() {
 }
 
 function TesterCard({ kind }: { kind: Kind }) {
+  // Testing/saving keys = "connecting" → requires sign-in when Clerk is on.
+  if (!clerkOn) return <TesterBox kind={kind} />;
+  return <GatedTester kind={kind} />;
+}
+
+function GatedTester({ kind }: { kind: Kind }) {
+  const { isSignedIn, isLoaded } = useSignInGate();
+  if (!isLoaded) return <GateLoading />;
+  if (!isSignedIn) return <RequireSignIn action="test connections with your keys" />;
+  return <TesterBox kind={kind} />;
+}
+
+function TesterBox({ kind }: { kind: Kind }) {
   const [values, setValues] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; message?: string; error?: string } | null>(null);
@@ -87,7 +101,7 @@ function TesterCard({ kind }: { kind: Kind }) {
       <button
         onClick={test}
         disabled={busy}
-        className="mt-3 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50"
+        className="mt-3 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-50"
       >
         {busy && <Loader2 className="h-4 w-4 animate-spin" />} Test connection
       </button>
@@ -102,6 +116,19 @@ function TesterCard({ kind }: { kind: Kind }) {
 }
 
 export function EnvGenerator() {
+  // Generating/saving an env file with your keys = "connecting" → sign-in wall.
+  if (!clerkOn) return <EnvBox />;
+  return <GatedEnv />;
+}
+
+function GatedEnv() {
+  const { isSignedIn, isLoaded } = useSignInGate();
+  if (!isLoaded) return <GateLoading />;
+  if (!isSignedIn) return <RequireSignIn action="generate and save your env keys" />;
+  return <EnvBox />;
+}
+
+function EnvBox() {
   const [v, setV] = useState<Record<string, string>>({ region: "auto", bucket: "journal-media", model: "gemini-3.5-flash" });
   const [copied, setCopied] = useState(false);
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) =>

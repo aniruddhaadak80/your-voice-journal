@@ -16,7 +16,7 @@ export default function SketchbookPage() {
             (@designcodeio/threeui, MIT), embedded unmodified.
           </p>
         </div>
-        <Link href="/showcase" className="text-sm font-semibold text-indigo-600 hover:underline">
+        <Link href="/showcase" className="text-sm font-semibold text-blue-600 hover:underline">
           ← All showcases
         </Link>
       </div>

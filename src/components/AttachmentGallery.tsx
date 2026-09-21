@@ -16,7 +16,7 @@ export default function AttachmentGallery({ items }: { items: Attachment[] }) {
           ) : a.type === "audio" ? (
             <audio src={a.url} controls className="w-full p-3" />
           ) : (
-            <a href={a.url} target="_blank" className="block p-4 text-sm text-indigo-600 hover:underline">
+            <a href={a.url} target="_blank" className="block p-4 text-sm text-blue-600 hover:underline">
               📄 {a.fileName}
             </a>
           )}

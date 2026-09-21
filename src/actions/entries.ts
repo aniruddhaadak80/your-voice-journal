@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createEntry, updateEntry, deleteEntry, dbConfigured } from "@/lib/db";
-import { getUserId } from "@/lib/auth";
+import { requireUserId } from "@/lib/auth";
 import { stripHtml } from "@/lib/format";
 
 function parseTags(raw?: string | string[]) {
@@ -20,7 +20,7 @@ export async function createEntryAction(form: {
   audioUrl?: string;
 }) {
   if (!dbConfigured()) throw new Error("Database not connected — finish /connect first.");
-  const userId = await getUserId();
+  const userId = await requireUserId();
   const entry = await createEntry({
     userId,
     title: form.title,
@@ -31,7 +31,7 @@ export async function createEntryAction(form: {
     mood: form.mood,
     audioUrl: form.audioUrl,
   });
-  revalidatePath("/");
+  revalidatePath("/journal");
   return { id: entry.id };
 }
 
@@ -45,7 +45,7 @@ export async function updateEntryAction(form: {
   audioUrl?: string;
 }) {
   if (!dbConfigured()) throw new Error("Database not connected — finish /connect first.");
-  const userId = await getUserId();
+  const userId = await requireUserId();
   await updateEntry({
     id: form.id,
     userId,
@@ -58,14 +58,14 @@ export async function updateEntryAction(form: {
     ...(form.transcript !== undefined ? { transcript: form.transcript } : {}),
     ...(form.audioUrl !== undefined ? { audioUrl: form.audioUrl } : {}),
   });
-  revalidatePath("/");
+  revalidatePath("/journal");
   revalidatePath(`/entry/${form.id}`);
   return { ok: true };
 }
 
 export async function deleteEntryAction(id: string) {
   if (!dbConfigured()) throw new Error("Database not connected — finish /connect first.");
-  await deleteEntry({ id, userId: await getUserId() });
-  revalidatePath("/");
+  await deleteEntry({ id, userId: await requireUserId() });
+  revalidatePath("/journal");
   return { ok: true };
 }

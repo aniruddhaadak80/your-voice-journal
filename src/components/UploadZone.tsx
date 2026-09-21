@@ -30,8 +30,8 @@ export default function UploadZone({ entryId, onUploaded }: { entryId?: string; 
   }
 
   return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-zinc-300 p-4 text-sm text-zinc-500 hover:border-indigo-400 dark:border-zinc-700">
-      <UploadCloud className="h-5 w-5 text-indigo-500" />
+    <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-zinc-300 p-4 text-sm text-zinc-500 hover:border-blue-400 dark:border-zinc-700">
+      <UploadCloud className="h-5 w-5 text-blue-500" />
       <span>{busy ? "Uploading…" : "Drop images, video, audio, PDFs here or click to browse"}</span>
       <input type="file" multiple className="hidden" onChange={(e) => handle(e.target.files)} />
       {msg && <span className="ml-auto text-xs">{msg}</span>}

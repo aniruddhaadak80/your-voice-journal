@@ -28,7 +28,7 @@ export default async function EntryPage({ params }: { params: Promise<{ id: stri
         <h1 className="text-xl font-bold">Entry not found</h1>
         <p className="mt-1 text-sm text-zinc-500">
           It may have been deleted or belong to another account.{" "}
-          <Link href="/" className="text-indigo-600 hover:underline">Back to journal →</Link>
+          <Link href="/journal" className="text-blue-600 hover:underline">Back to journal →</Link>
         </p>
       </Card>
     );

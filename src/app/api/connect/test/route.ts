@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
+import { requireUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
@@ -10,6 +11,13 @@ type TestRequest = {
 };
 
 export async function POST(req: Request) {
+  // Connecting (testing) backends requires sign-in when Clerk is configured.
+  // Viewing the wizard stays public.
+  try {
+    await requireUserId();
+  } catch (e) {
+    return NextResponse.json({ ok: false, error: (e as Error).message }, { status: 401 });
+  }
   let body: TestRequest;
   try {
     body = (await req.json()) as TestRequest;

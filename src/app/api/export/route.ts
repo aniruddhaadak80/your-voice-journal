@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { dbConfigured } from "@/lib/db";
-import { getUserId } from "@/lib/auth";
+import { requireUserId } from "@/lib/auth";
 import { stripHtml } from "@/lib/format";
 
 export const runtime = "nodejs";
@@ -12,10 +12,16 @@ export async function GET(req: Request) {
   }
   const { searchParams } = new URL(req.url);
   const format = searchParams.get("format") ?? "json";
+  let userId: string;
+  try {
+    userId = await requireUserId();
+  } catch (e) {
+    return NextResponse.json({ error: (e as Error).message }, { status: 401 });
+  }
   let entries;
   try {
     entries = await prisma.journalEntry.findMany({
-      where: { userId: await getUserId(), isDeleted: false },
+      where: { userId, isDeleted: false },
       include: { attachments: true },
       orderBy: { createdAt: "desc" },
     });

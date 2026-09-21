@@ -30,8 +30,8 @@ No shared database. No shared API keys. Every user brings their own backends —
 | 🎙️ **Voice journaling** | Browser recorder → Gemini transcription → transcript + audio URL saved in Postgres |
 | 🖼️ **Multimedia** | Images, video, audio, PDFs, docs via S3-compatible upload (`/api/upload`) + gallery |
 | ✍️ **Rich text** | TipTap editor — headings, lists, code, quotes, links, embedded uploads |
-| 🔍 **Search** | Full-text-ish search over title + content + transcript (+ optional `tsvector` migration) |
-| 🤖 **AI** | Summarize, suggest tags, **Ask-my-journal** (retrieval + grounded answers) |
+| 🔍 **Advanced search** | Full-text over title + content + transcript **plus mood, tag, date-range and newest/oldest ordering** (+ optional `tsvector` migration) |
+| 🤖 **AI (Gemini)** | Summarize, suggest tags, **generate titles, detect mood, Ask-my-journal** (retrieval + grounded answers) with **Deep search** (AI query expansion → multi-term retrieval) |
 | 🔌 **Connect wizard** | `/connect` — step-by-step guides with links, paste-to-test Neon/S3/Gemini/Clerk, `.env` generator |
 | 🔐 **Clerk auth** | Per-user private journals when keys set; graceful single-user demo mode otherwise |
 | 📤 **Export** | One-click JSON / Markdown download of your entries |
@@ -132,25 +132,87 @@ Prefer the UI? Open **[/connect](https://your-voice-journal.vercel.app/connect)*
    [dashboard.clerk.com](https://dashboard.clerk.com) → app → API keys ([Next.js guide](https://clerk.com/docs/quickstarts/nextjs)) → **redeploy**
 5. **Migrate**: `pnpm exec prisma migrate deploy` (+ optional `psql $DATABASE_URL -f prisma/fulltext.sql` for `tsvector` ranking)
 
-## ▲ Deploy (Vercel)
+## ▲ Deploy (Vercel — with the dev/test Clerk keys)
 
 ```bash
 vercel --prod   # or: https://vercel.com/new → import your-voice-journal
 ```
 
-Then Project → Settings → Environment Variables → paste all vars → **Redeploy**. Run step 5 above once against prod, and check `/api/status` — everything should read green.
+Paste the **test** Clerk keys (`pk_test_…` / `sk_test_…` from `.env.local`) at Project → Settings → Environment Variables → **Redeploy** — the auth wall activates on deploy. Run step 5 above once against prod, and check `/api/status` — everything should read green. (Swap to `pk_live_…`/`sk_live_…` whenever you want production auth.)
+
+## ✅ Production status & manual checklist (only YOU can do these)
+
+Live prod `/api/status` (checked 2026-09-20): `db: connected` · `ai: configured (gemini)` · `storage: not configured` · running as `demo-user` (Clerk prod keys not active).
+
+```mermaid
+flowchart TD
+    A["You: create keys"] --> B["Paste in Vercel env"]
+    B --> C["Redeploy"]
+    C --> D["Migrate prod DB once"]
+    D --> E["Open /api/status"]
+    E -->|"all green"| F["Done ✅"]
+    E -->|"storage/auth red"| A
+```
+
+Do these in order — the assistant cannot click through third-party dashboards for you:
+
+1. **Clerk keys + social logins** — [dashboard.clerk.com](https://dashboard.clerk.com) → app `darling-joey-1704` → **API Keys** → copy `pk_test_…` + `sk_test_…` ([Next.js guide](https://clerk.com/docs/quickstarts/nextjs)). Then **SSO connections → enable Google** (works instantly), **Facebook + LinkedIn** (paste your OAuth client id/secret from [developers.facebook.com/apps](https://developers.facebook.com/apps) and [linkedin.com/developers/apps](https://www.linkedin.com/developers/apps)). Paste both keys into Vercel env (step 3) → **Redeploy** (middleware only picks keys up on a new deployment).
+2. **Storage keys (uploads are OFF until you do this)** — [dash.cloudflare.com](https://dash.cloudflare.com) → R2 → bucket + token ([R2 docs](https://developers.cloudflare.com/r2/)) or [S3 console](https://s3.console.aws.amazon.com): set `S3_ENDPOINT, S3_REGION, S3_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_PUBLIC_BASE_URL` in Vercel env → **Redeploy**.
+3. **Vercel env + redeploy** — [vercel.com](https://vercel.com) → project `your-voice-journal` → Settings → Environment Variables → paste all vars → Deployments → **Redeploy**.
+4. **Prod DB tables once** — `DATABASE_URL=<prod-string> pnpm exec prisma migrate deploy` (get the string at [console.neon.tech](https://console.neon.tech)).
+5. **Verify** — open `https://your-voice-journal.vercel.app/api/status`: want `db: connected`, `storage: configured`, `ai: configured`, and your Clerk user id instead of `demo-user`.
+6. **Commit this session's work** (ThreeUI files + showcase auth fix are still uncommitted locally) — `git add -A && git commit -m "feat: threeui sketchbook + showcase auth guard" && git push origin main`, then `vercel --prod`.
+
+```mermaid
+flowchart LR
+    subgraph Public["🌍 Public (no login)"]
+        L["/ + /connect landing"]
+    end
+    subgraph Gated["🔐 Signed in via Clerk"]
+        J["Journal CRUD + uploads"]
+        C["AI chat + connect/test + export"]
+        D[("Neon rows per user id")]
+    end
+    L -->|"Sign in: Google, LinkedIn, Facebook, email"| Gated
+    Gated --> D
+```
+
+Auth model today: landing + journal are **open in demo mode** (`DEFAULT_USER_ID`) unless Clerk keys are set; `/showcase` (this session) requires sign-in. Wanted end-state (not yet built): public landing viewable by all, journal + DB writes gated behind Clerk — say the word and it gets implemented via middleware + a public landing split.
 
 ## 📜 Scripts
 
-`dev` · `build` · `start` · `lint` · `format` · `test` (`vitest`) · `db:migrate` · `db:deploy` · `db:seed`
+`dev` · `build` · `start` · `lint` · `format` · `test` (`vitest`) · `smoke` (route smoke test vs dev or `SMOKE_BASE=…`) · `db:migrate` · `db:deploy` · `db:seed`
+
+## 🔗 All links
+
+| What | Link |
+|------|------|
+| 🌐 Live app (landing) | https://your-voice-journal.vercel.app |
+| 📓 Journal (sign-in) | https://your-voice-journal.vercel.app/journal |
+| ✨ Showcase | https://your-voice-journal.vercel.app/showcase |
+| ⛩️ Kage | https://your-voice-journal.vercel.app/showcase/kage |
+| 📖 Sketchbook | https://your-voice-journal.vercel.app/showcase/sketchbook |
+| 🖥️ Studio OS | https://your-voice-journal.vercel.app/showcase/studio |
+| 🔌 Connect wizard | https://your-voice-journal.vercel.app/connect |
+| ⚙️ Settings | https://your-voice-journal.vercel.app/settings |
+| 🔐 Sign in / up | https://your-voice-journal.vercel.app/sign-in · https://your-voice-journal.vercel.app/sign-up |
+| 💓 Health | https://your-voice-journal.vercel.app/api/status |
+| 🗺️ Sitemap / robots | https://your-voice-journal.vercel.app/sitemap.xml · https://your-voice-journal.vercel.app/robots.txt |
+| 💻 GitHub repo | https://github.com/aniruddhaadak80/your-voice-journal |
+| 🤖 CI runs | https://github.com/aniruddhaadak80/your-voice-journal/actions |
+| ▲ Vercel project | https://vercel.com → project `your-voice-journal` |
+| 🔑 Clerk dashboard | https://dashboard.clerk.com (app `darling-joey-1704` for dev keys) |
+| 🐘 Neon console | https://console.neon.tech |
+| 🪣 R2 dashboard | https://dash.cloudflare.com |
+| ✨ Gemini keys | https://aistudio.google.com/apikey |
 
 ## 🗺️ Routes
 
-`/` dashboard+search · `/entry/new` create · `/entry/[id]` view/edit · `/connect` wizard · `/settings` status+export · `/sign-in` · `/sign-up` · `/api/upload` · `/api/transcribe` · `/api/ai` · `/api/export` · `/api/status` · `/api/connect/test`
+`/` public landing · `/journal` dashboard+advanced search (signed in) · `/entry/new` create · `/entry/[id]` view/edit · `/connect` wizard · `/settings` status+export · `/showcase` (+ `/showcase/kage`, `/showcase/sketchbook`, `/showcase/studio`) · `/sign-in` · `/sign-up` · `/api/upload` · `/api/transcribe` · `/api/ai` · `/api/export` · `/api/status` · `/api/connect/test`
 
-## 🔐 Auth model
+## 🔐 Auth model — public landing, everything else signed in
 
-All DB helpers take `userId`. With Clerk keys, `getUserId()` returns the Clerk id (each user sees only their rows); without keys it falls back to `DEFAULT_USER_ID` demo mode. Swap in any provider later by changing one function.
+`/` is a public animated landing. **Every other page and API requires Clerk sign-in** (middleware `auth.protect()` in `src/middleware.ts`); signed-in visitors to `/` bounce straight to `/journal`. Writes additionally enforce `requireUserId()` in `src/lib/auth.ts` (server returns `401` + UI shows a sign-in prompt). Sign in with Google, LinkedIn, Facebook or email — each user sees only their own rows. Without Clerk keys everything stays open in single-user demo mode (`DEFAULT_USER_ID`). Swap in any provider later by changing one function.
 
 ## 🤝 Contributing
 

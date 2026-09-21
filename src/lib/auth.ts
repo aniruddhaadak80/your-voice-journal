@@ -22,6 +22,23 @@ export async function getUserId(): Promise<string> {
   }
 }
 
+// Fail-closed user id for WRITES (entries, uploads, AI/chat, connect, export).
+// Reads stay public; any mutation must call this. When Clerk keys are absent
+// (local demo mode) it falls back to the demo user so nothing breaks.
+export const SIGN_IN_REQUIRED = "Sign in required — connect with Clerk first.";
+
+export async function requireUserId(): Promise<string> {
+  if (!clerkConfigured()) return defaultUserId();
+  try {
+    const { userId } = await auth();
+    if (!userId) throw new Error(SIGN_IN_REQUIRED);
+    return userId;
+  } catch (e) {
+    if ((e as Error).message === SIGN_IN_REQUIRED) throw e;
+    throw new Error(SIGN_IN_REQUIRED);
+  }
+}
+
 // Email for the Prisma User row. Clerk users get a synthetic stable email
 // so the required unique `email` column stays satisfied.
 export function emailForUser(userId: string) {
