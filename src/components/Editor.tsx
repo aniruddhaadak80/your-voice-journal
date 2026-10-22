@@ -5,7 +5,8 @@ import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { syncEditorContent } from "@/lib/editor-content";
 
 export default function Editor({
   initial,
@@ -14,6 +15,11 @@ export default function Editor({
   initial?: string;
   onChange: (html: string) => void;
 }) {
+  // Last HTML the editor reported through onUpdate. Used to tell an
+  // external change (e.g. an uploaded file link) apart from an echo of the
+  // editor's own state.
+  const lastEmitted = useRef<string | null>(null);
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -29,15 +35,28 @@ export default function Editor({
           "prose dark:prose-invert min-h-[280px] max-w-none rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-4 outline-none focus:ring-2 focus:ring-blue-200",
       },
     },
-    onUpdate: ({ editor }) => onChange(editor.getHTML()),
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML();
+      lastEmitted.current = html;
+      onChange(html);
+    },
   });
 
+  // TipTap only reads `content` when the editor is created, so content that
+  // changes from the outside (for example the link added by the upload zone)
+  // has to be pushed into the document explicitly. Without this the change is
+  // invisible in the editor and is overwritten by the next onUpdate.
   useEffect(() => {
-    if (editor && initial !== undefined && editor.getHTML() !== initial) {
-      // only set on mount differences
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor]);
+    if (!editor) return;
+    syncEditorContent({
+      incoming: initial,
+      lastEmitted: lastEmitted.current,
+      getHtml: () => editor.getHTML(),
+      setContent: (html) => {
+        editor.commands.setContent(html, false);
+      },
+    });
+  }, [editor, initial]);
 
   if (!editor) return <div className="animate-pulse rounded-2xl border p-4">Loading editor…</div>;
 

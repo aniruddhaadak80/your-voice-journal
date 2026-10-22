@@ -74,7 +74,7 @@ function NewEntryBox() {
       <Field label="Title">
         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="A quiet morning…" className={inputCls} />
       </Field>
-      <Editor initial="" onChange={setContent} />
+      <Editor initial={content} onChange={setContent} />
       {transcript && (
         <div className="rounded-2xl border bg-zinc-50 p-3 text-sm dark:bg-zinc-900">
           <div className="font-semibold">🎙️ Transcript</div>

@@ -57,7 +57,7 @@ function EditEntryBox({ entry }: { entry: EntryProp }) {
       <Field label="Title">
         <input value={title} onChange={(e) => setTitle(e.target.value)} className={inputCls} />
       </Field>
-      <Editor initial={entry.content} onChange={setContent} />
+      <Editor initial={content} onChange={setContent} />
       <UploadZone entryId={entry.id} onUploaded={(url) => setContent((c) => `${c}<p><a href="${url}">${url}</a></p>`)} />
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Tags">
