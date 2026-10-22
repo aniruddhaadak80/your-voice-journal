@@ -201,6 +201,64 @@ export async function createAttachment(input: {
   return prisma.attachment.create({ data: input });
 }
 
+// --- Pending upload holder --------------------------------------------
+// Uploads made before an entry exists need a valid Attachment.entryId
+// foreign key. Instead of creating a *visible* "Untitled" journal entry
+// (which polluted /journal, search and the exports), the attachments are
+// parked on a hidden holder row. The holder is soft-deleted so no listing
+// query can ever return it, and it is hard-deleted once the real entry
+// adopts its attachments.
+
+export const PENDING_UPLOAD_TITLE = "__pending-uploads__";
+
+export async function getOrCreatePendingUploadEntry(userId: string): Promise<string> {
+  // The holder row needs a valid userId FK, so make sure the User exists.
+  await ensureDemoUserIfNeeded(userId);
+  const existing = await prisma.journalEntry.findFirst({
+    where: { userId, title: PENDING_UPLOAD_TITLE, isDeleted: true },
+    orderBy: { createdAt: "desc" },
+  });
+  if (existing) return existing.id;
+  const created = await prisma.journalEntry.create({
+    data: {
+      userId,
+      title: PENDING_UPLOAD_TITLE,
+      content: "",
+      plainText: "",
+      transcript: "",
+      tags: [],
+      isDeleted: true,
+    },
+  });
+  return created.id;
+}
+
+/**
+ * Move every attachment parked on a pending-upload holder onto the entry the
+ * user actually saved, then drop the holder. Returns the number of holders
+ * that were adopted.
+ */
+export async function adoptPendingUploads(userId: string, entryId: string): Promise<number> {
+  const holders = await prisma.journalEntry.findMany({
+    where: { userId, title: PENDING_UPLOAD_TITLE, isDeleted: true },
+    select: { id: true },
+  });
+  const holderIds = holders.map((h) => h.id);
+  if (!holderIds.length) return 0;
+  // Both writes must land in one transaction: re-pointing the attachments
+  // before the holder is deleted avoids the FK cascade wiping them.
+  await prisma.$transaction([
+    prisma.attachment.updateMany({
+      where: { entryId: { in: holderIds } },
+      data: { entryId },
+    }),
+    prisma.journalEntry.deleteMany({
+      where: { id: { in: holderIds } },
+    }),
+  ]);
+  return holderIds.length;
+}
+
 export async function getAttachmentsByEntryId(entryId: string) {
   return prisma.attachment.findMany({
     where: { entryId },

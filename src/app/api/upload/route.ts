@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { isAllowedMime, classifyMime, storageConfigured, uploadBufferToStorage, MAX_UPLOAD_BYTES } from "@/lib/s3";
-import { createAttachment, getEntryById, dbConfigured } from "@/lib/db";
+import { createAttachment, getEntryById, dbConfigured, getOrCreatePendingUploadEntry } from "@/lib/db";
 import { requireUserId } from "@/lib/auth";
-import prisma from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
@@ -50,30 +49,17 @@ export async function POST(req: Request) {
       sizeBytes: file.size,
     });
   } else {
-    // orphan upload (used before entry exists); still return URL
-    await prisma.attachment.create({
-      data: {
-        entryId: await ensureDraftEntry(userId),
-        url,
-        type: classifyMime(file.type),
-        fileName: file.name,
-        mimeType: file.type,
-        sizeBytes: file.size,
-      },
+    // Orphan upload (used before the entry exists): park the attachment on a
+    // hidden holder row so it never shows up as a stray "Untitled" entry in
+    // /journal, search or the exports. createEntryAction adopts it later.
+    await createAttachment({
+      entryId: await getOrCreatePendingUploadEntry(userId),
+      url,
+      type: classifyMime(file.type),
+      fileName: file.name,
+      mimeType: file.type,
+      sizeBytes: file.size,
     });
   }
   return NextResponse.json({ url, key, attachment });
-}
-
-async function ensureDraftEntry(userId: string) {
-  // Reuse latest empty draft or create one so FK stays valid.
-  const existing = await prisma.journalEntry.findFirst({
-    where: { userId, isDeleted: false, title: "Untitled", plainText: "" },
-    orderBy: { createdAt: "desc" },
-  });
-  if (existing) return existing.id;
-  const created = await prisma.journalEntry.create({
-    data: { userId, title: "Untitled", content: "", plainText: "" },
-  });
-  return created.id;
 }

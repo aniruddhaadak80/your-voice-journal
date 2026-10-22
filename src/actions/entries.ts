@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createEntry, updateEntry, deleteEntry, dbConfigured } from "@/lib/db";
+import { createEntry, updateEntry, deleteEntry, dbConfigured, adoptPendingUploads } from "@/lib/db";
 import { requireUserId } from "@/lib/auth";
 import { stripHtml } from "@/lib/format";
 
@@ -31,6 +31,9 @@ export async function createEntryAction(form: {
     mood: form.mood,
     audioUrl: form.audioUrl,
   });
+  // Files uploaded before the entry existed are parked on a hidden holder
+  // row; move them onto the entry the user just saved.
+  await adoptPendingUploads(userId, entry.id);
   revalidatePath("/journal");
   return { id: entry.id };
 }
