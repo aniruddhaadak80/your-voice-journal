@@ -6,6 +6,8 @@ import { Moon, Sun } from "lucide-react";
 export default function ThemeToggle() {
   const [dark, setDark] = useState(false);
   useEffect(() => {
+    // The theme is stored on <html>, so it can only be read after hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDark(document.documentElement.classList.contains("dark"));
   }, []);
   return (

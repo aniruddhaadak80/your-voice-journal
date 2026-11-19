@@ -35,6 +35,8 @@ export default function StudioStatus({
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
+    // Mount-only diagnostics fetch: the busy flag must be set before the request.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setBusy(true);
     try {
       const res = await fetch("/api/status");
@@ -47,7 +49,9 @@ export default function StudioStatus({
   }, []);
 
   useEffect(() => {
-    load();
+    // The diagnostics fetch only runs on mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void load();
   }, [load]);
 
   const ok = (v?: string) => v === "connected" || (v?.startsWith("configured") ?? false);
