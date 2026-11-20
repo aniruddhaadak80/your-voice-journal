@@ -57,5 +57,11 @@
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
+  },
+  "pnpm": {
+    "overrides": {
+      "markdown-it": "14.3.3",
+      "source-map-js": "1.2.2"
+    }
   }
 }
